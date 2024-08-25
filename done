@@ -27,3 +27,18 @@ SELECT user_id,
                                                     FROM   t1), 2) as orders_diff
 FROM   t1
 ORDER BY user_id limit 1000
+
+
+
+
+
+with order_delivery as (SELECT order_id
+                        FROM   courier_actions
+                        WHERE  action = 'deliver_order'
+                        ORDER BY time desc limit 100)
+SELECT order_id,
+       product_ids
+FROM   orders
+WHERE  order_id in (SELECT*
+                    FROM   order_delivery)
+ORDER BY order_id

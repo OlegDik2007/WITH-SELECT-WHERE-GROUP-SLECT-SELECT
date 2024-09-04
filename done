@@ -12,7 +12,7 @@ FROM   w1
 ORDER BY user_id asc limit 1000
 
 
-
+**************************
 
 
 with t1 as (SELECT user_id,
@@ -29,7 +29,7 @@ FROM   t1
 ORDER BY user_id limit 1000
 
 
-
+**********************************
 
 
 with order_delivery as (SELECT order_id
@@ -42,3 +42,34 @@ FROM   orders
 WHERE  order_id in (SELECT*
                     FROM   order_delivery)
 ORDER BY order_id
+
+
+
+*********************
+with first_order as (SELECT date(min(time)) as date,
+                            user_id
+                     FROM   user_actions
+                     WHERE  order_id not in (SELECT order_id
+                                             FROM   user_actions
+                                             WHERE  action = 'cancel_order')
+                     GROUP BY user_id)
+SELECT date,
+       count(user_id) as first_orders
+FROM   first_order
+GROUP BY date
+ORDER BY date
+
+********************************
+
+SELECT first_order_date as date,
+       count(user_id) as first_orders
+FROM   (SELECT user_id,
+               min(time)::date as first_order_date
+        FROM   user_actions
+        WHERE  order_id not in (SELECT order_id
+                                FROM   user_actions
+                                WHERE  action = 'cancel_order')
+        GROUP BY user_id) t
+GROUP BY first_order_date
+ORDER BY date
+
